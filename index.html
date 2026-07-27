@@ -1,63 +1,20 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>X81 / Q81 / Operator / RESPO / Orbit / 81.tmp – Full System</title>
-<style>
-body { font-family: monospace; background:#111; color:#0f0; padding:20px; }
-pre { background:#000; padding:10px; border:1px solid #0f0; }
-h2 { color:#0f0; }
-</style>
-</head>
-
-<body>
-
-<h1>FULL SYSTEM – X81 → Q81 → Operator → RESPO → Orbit → 81.tmp</h1>
-
-<h2>Kernel (3×81)</h2>
-<pre id="kernel"></pre>
-
-<h2>Dreieck (Triangle)</h2>
-<pre id="triangle"></pre>
-
-<h2>OrbitLink</h2>
-<pre id="orbitlink"></pre>
-
-<h2>RESPO 81.tmp (ID 415)</h2>
-<pre id="respo"></pre>
-
 <script type="module">
 import { Kernel3x81 } from "./JS/3x81.kernel.js";
-import { Triangle } from "./JS/3x81.raw";
-import { _81tmp } from "./JS/81tmp.js";
-import { OrbitLink } from "./81.tmp";
+import { AtomRings4D } from "./JS/AtomRings4D.js";
+import { Orbit24D } from "./JS/Orbit24D.js";
+import { Z_Axis } from "./JS/Z.axis.js";
+import { _81tmp_matrix } from "./JS/81tmp.matrix.js";
+import { InfinityCross } from "./JS/InfinityCross.js";
 
-// --- System starten ---
-async function startSystem() {
-
-    // 1) Kernel laden
+async function start() {
     const atom = await Kernel3x81();
-    document.getElementById("kernel").textContent =
-        JSON.stringify(atom, null, 2);
 
-    // 2) Dreieck erzeugen
-    const tri = Triangle(atom);
-    document.getElementById("triangle").textContent =
-        JSON.stringify(tri, null, 2);
-
-    // 3) OrbitLink erzeugen
-    const orbit = OrbitLink(atom);
-    document.getElementById("orbitlink").textContent =
-        JSON.stringify(orbit, null, 2);
-
-    // 4) RESPO 81.tmp erzeugen
-    const respo = await _81tmp();
-    document.getElementById("respo").textContent =
-        JSON.stringify(respo, null, 2);
+    document.body.innerHTML += AtomRings4D();
+    document.body.innerHTML += "<pre>" + JSON.stringify(Orbit24D(atom), null, 2) + "</pre>";
+    document.body.innerHTML += "<pre>" + JSON.stringify(Z_Axis(atom), null, 2) + "</pre>";
+    document.body.innerHTML += "<pre>" + JSON.stringify(await _81tmp_matrix(), null, 2) + "</pre>";
+    document.body.innerHTML += "<pre>" + InfinityCross() + "</pre>";
 }
 
-startSystem();
+start();
 </script>
-
-</body>
-</html>
