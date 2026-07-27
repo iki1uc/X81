@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>X81 / Q81 / RESPO81 – Owner System</title>
+<title>X81 / Q81 / Operator / RESPO / Orbit / 81.tmp – Full System</title>
 <style>
 body { font-family: monospace; background:#111; color:#0f0; padding:20px; }
 pre { background:#000; padding:10px; border:1px solid #0f0; }
@@ -12,73 +12,48 @@ h2 { color:#0f0; }
 
 <body>
 
-<h1>Owner Avatar – X81 / Q81 / RESPO81</h1>
+<h1>FULL SYSTEM – X81 → Q81 → Operator → RESPO → Orbit → 81.tmp</h1>
 
-<h2>X81</h2>
-<pre id="x81"></pre>
+<h2>Kernel (3×81)</h2>
+<pre id="kernel"></pre>
 
-<h2>Q81</h2>
-<pre id="q81"></pre>
+<h2>Dreieck (Triangle)</h2>
+<pre id="triangle"></pre>
 
-<h2>Operator 81</h2>
-<pre id="operator"></pre>
+<h2>OrbitLink</h2>
+<pre id="orbitlink"></pre>
 
-<h2>RESPO 81</h2>
+<h2>RESPO 81.tmp (ID 415)</h2>
 <pre id="respo"></pre>
 
-<h2>Orbit</h2>
-<pre id="orbit"></pre>
-
-<script>
-// --- Datei-Lader ---
-async function loadFile(path) {
-    const r = await fetch(path);
-    return await r.text();
-}
-
-// --- X81 ---
-async function loadX81() {
-    const raw = await loadFile("X.tmp");
-    return { X81: raw.trim() };
-}
-
-// --- Q81 ---
-async function loadQ81() {
-    const raw = await loadFile("q.tmp");
-    return { Q81: raw.trim() };
-}
-
-// --- Operator 81 ---
-async function loadOperator() {
-    const raw = await loadFile("operator.tmp");
-    return { Operator81: raw.trim() };
-}
-
-// --- RESPO 81 ---
-async function loadRESPO() {
-    const raw = await loadFile("RESPO_ARG_SCAN.tmp");
-    return { RESPO81: raw.trim() };
-}
-
-// --- Orbit ---
-async function loadOrbit() {
-    const raw = await loadFile("U/U.orbit");
-    return { Orbit: raw.trim() };
-}
+<script type="module">
+import { Kernel3x81 } from "./JS/3x81.kernel.js";
+import { Triangle } from "./JS/3x81.raw";
+import { _81tmp } from "./JS/81tmp.js";
+import { OrbitLink } from "./81.tmp";
 
 // --- System starten ---
 async function startSystem() {
-    const x = await loadX81();
-    const q = await loadQ81();
-    const op = await loadOperator();
-    const respo = await loadRESPO();
-    const orb = await loadOrbit();
 
-    document.getElementById("x81").textContent = JSON.stringify(x, null, 2);
-    document.getElementById("q81").textContent = JSON.stringify(q, null, 2);
-    document.getElementById("operator").textContent = JSON.stringify(op, null, 2);
-    document.getElementById("respo").textContent = JSON.stringify(respo, null, 2);
-    document.getElementById("orbit").textContent = JSON.stringify(orb, null, 2);
+    // 1) Kernel laden
+    const atom = await Kernel3x81();
+    document.getElementById("kernel").textContent =
+        JSON.stringify(atom, null, 2);
+
+    // 2) Dreieck erzeugen
+    const tri = Triangle(atom);
+    document.getElementById("triangle").textContent =
+        JSON.stringify(tri, null, 2);
+
+    // 3) OrbitLink erzeugen
+    const orbit = OrbitLink(atom);
+    document.getElementById("orbitlink").textContent =
+        JSON.stringify(orbit, null, 2);
+
+    // 4) RESPO 81.tmp erzeugen
+    const respo = await _81tmp();
+    document.getElementById("respo").textContent =
+        JSON.stringify(respo, null, 2);
 }
 
 startSystem();
