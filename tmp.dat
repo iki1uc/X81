@@ -1,7 +1,36 @@
+// tmp.dat – Orbit + Vektor-Basis für 81.tmp
+
 export function OrbitLink(atom) {
     return {
-        O1: "Orbit Elektron → " + atom.Orbit,
-        O2: "Orbit Proton → " + atom.Proton,
-        O3: "Orbit Neutron → " + atom.Neutron
+        Elektron: atom.Elektron ?? 0,
+        Proton: atom.Proton ?? 0,
+        Neutron: atom.Neutron ?? 0,
+        Orbit: atom.Orbit ?? 0,
+        text: `E:${atom.Elektron} P:${atom.Proton} N:${atom.Neutron} O:${atom.Orbit}`
+    };
+}
+
+// Basis-Vektor für 81.tmp
+export function TMP_Vektor(atom) {
+    const o = OrbitLink(atom);
+
+    return {
+        orbit: o,
+        sum: o.Elektron + o.Proton + o.Neutron + o.Orbit,
+        avg: (o.Elektron + o.Proton + o.Neutron + o.Orbit) / 4,
+        id: `TMP-${o.Elektron}-${o.Proton}-${o.Neutron}-${o.Orbit}`
+    };
+}
+
+// 81.tmp – direkte Integration
+export function TMP81(atom) {
+    const v = TMP_Vektor(atom);
+
+    return {
+        typ: "TMP-81",
+        orbit: v.orbit,
+        summe: v.sum,
+        durchschnitt: v.avg,
+        id: v.id
     };
 }
