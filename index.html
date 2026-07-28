@@ -1,67 +1,36 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <title>3×81 · Kernel · Matrix · Orbit</title>
-
-    <style>
-        body {
-            background:#000;
-            color:#eee;
-            font-family:Consolas, monospace;
-            padding:20px;
-        }
-        h1 { color:#6cf; }
-        pre {
-            background:#111;
-            padding:15px;
-            border:1px solid #333;
-            margin:20px 0;
-        }
-    </style>
+<meta charset="UTF-8">
+<title>Q81 · Funktions‑Viewer</title>
+<style>
+body { background:#000; color:#eee; font-family:Consolas; padding:20px; }
+pre { background:#111; padding:15px; border:1px solid #333; padding:10px; }
+h1 { color:#6cf; }
+</style>
 </head>
 
 <body>
-
-<h1>3×81 · Kernel · Matrix · Orbit · Z‑Axis · InfinityCross</h1>
+<h1>Q81 · Funktions‑Viewer</h1>
 
 <script type="module">
+import * as CORE from "./JS/core.js";
+import * as ORBIT from "./JS/orbit.js";
+import * as M81 from "./JS/m81.js";
+import * as TMP81 from "./JS/tmp81.js";
+import * as Z from "./JS/z.js";
+import * as X from "./JS/x.js";
 
-    import { Kernel3x81 } from "./JS/381.kernel.js";
-    import { Orbit24D } from "./JS/Orbit24D.js";
-    import { Z_Axis } from "./JS/Z.axis.js";
-    import { _81tmp_matrix } from "./JS/81tmp.matrix.js";
-    import { InfinityCross } from "./JS/InfinityCross.js";
+function show(name, obj){
+    document.body.innerHTML += `<h2>${name}</h2><pre>${JSON.stringify(obj,null,2)}</pre>`;
+}
 
-    async function start() {
-
-        // 1. Kernel laden
-        const atom = await Kernel3x81();
-
-        // 2. Orbit24D anzeigen
-        document.body.innerHTML += "<pre>Orbit24D:\n" +
-            JSON.stringify(Orbit24D(atom), null, 2) +
-            "</pre>";
-
-        // 3. Z‑Axis anzeigen
-        document.body.innerHTML += "<pre>Z‑Axis:\n" +
-            JSON.stringify(Z_Axis(atom), null, 2) +
-            "</pre>";
-
-        // 4. 81tmp‑Matrix anzeigen
-        const matrix = await _81tmp_matrix();
-        document.body.innerHTML += "<pre>81tmp‑Matrix:\n" +
-            JSON.stringify(matrix, null, 2) +
-            "</pre>";
-
-        // 5. InfinityCross anzeigen
-        document.body.innerHTML += "<pre>InfinityCross:\n" +
-            InfinityCross() +
-            "</pre>";
-    }
-
-    start();
-
+show("CORE", CORE);
+show("ORBIT", ORBIT);
+show("M81", M81);
+show("TMP81", TMP81);
+show("Z‑AXIS", Z);
+show("X81", X);
 </script>
 
 </body>
