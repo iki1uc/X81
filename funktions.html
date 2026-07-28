@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Q81 · Funktions‑Viewer</title>
+<style>
+body { background:#000; color:#eee; font-family:Consolas; padding:20px; }
+pre { background:#111; padding:15px; border:1px solid #333; padding:10px; }
+h1 { color:#6cf; }
+</style>
+</head>
+
+<body>
+<h1>Q81 · Funktions‑Viewer</h1>
+
+<script type="module">
+import * as CORE from "./JS/core.js";
+import * as ORBIT from "./JS/orbit.js";
+import * as M81 from "./JS/m81.js";
+import * as TMP81 from "./JS/tmp81.js";
+import * as Z from "./JS/z.js";
+import * as X from "./JS/x.js";
+
+function show(name, obj){
+    document.body.innerHTML += `<h2>${name}</h2><pre>${JSON.stringify(obj,null,2)}</pre>`;
+}
+
+show("CORE", CORE);
+show("ORBIT", ORBIT);
+show("M81", M81);
+show("TMP81", TMP81);
+show("Z‑AXIS", Z);
+show("X81", X);
+</script>
+
+</body>
+</html>
