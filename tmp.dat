@@ -10,7 +10,6 @@ export function OrbitLink(atom) {
     };
 }
 
-// Basis-Vektor für 81.tmp
 export function TMP_Vektor(atom) {
     const o = OrbitLink(atom);
 
@@ -22,7 +21,6 @@ export function TMP_Vektor(atom) {
     };
 }
 
-// 81.tmp – direkte Integration
 export function TMP81(atom) {
     const v = TMP_Vektor(atom);
 
