@@ -1,1 +1,62 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Q‑Move</title>
+<style>
+body { background:#000; color:#eee; font-family:Consolas; padding:20px; }
+#area { width:500px; height:500px; border:1px solid #333; margin-top:20px; position:relative; perspective:800px; }
+.dot { width:20px; height:20px; border-radius:50%; position:absolute; transition:all .8s ease; box-shadow:0 0 10px #fff; }
+.trail { width:8px; height:8px; border-radius:50%; position:absolute; opacity:.4; }
+</style>
+</head>
+
+<body>
+<h1>Q‑Move · W → S → M → 81 → Q → W</h1>
+<audio id="snd" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+<div id="area"></div>
+
+<script type="module">
+import { Z } from "./JS/z.js";
+import { ORBIT } from "./JS/orbit.js";
+import { CORE } from "./JS/core.js";
+
+const area = document.getElementById("area");
+const snd = document.getElementById("snd");
+
+const move = [
+    { name:"W",  x:-1,  y:0,   z:Z(0), color:"#6cf" },
+    { name:"S",  x:0,   y:-1,  z:Z(1), color:"#c66" },
+    { name:"M",  x:0,   y:0,   z:Z(2), color:"#ccc" },
+    { name:"81", x:-.5, y:.5,  z:Z(3), color:"#fc6" },
+    { name:"Q",  x:1,   y:0,   z:Z(4), color:"#6f6" },
+    { name:"W",  x:-1,  y:0,   z:Z(0), color:"#6cf" }
+];
+
+const dot = document.createElement("div");
+dot.className = "dot";
+dot.style.left = "250px";
+dot.style.top  = "250px";
+area.appendChild(dot);
+
+move.forEach((p,i)=>{
+    setTimeout(()=>{
+        area.style.transform = `rotateY(${p.z*25}deg) rotateX(${p.z*10}deg)`;
+        snd.currentTime = 0; snd.play();
+
+        const trail = document.createElement("div");
+        trail.className = "trail";
+        trail.style.background = p.color;
+        trail.style.left = (250 + p.x*120) + "px";
+        trail.style.top  = (250 + p.y*120) + "px";
+        area.appendChild(trail);
+
+        dot.style.background = p.color;
+        dot.style.left = (250 + p.x*120) + "px";
+        dot.style.top  = (250 + p.y*120) + "px";
+    }, i*700);
+});
+</script>
+</body>
+</html>
 
