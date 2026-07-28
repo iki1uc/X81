@@ -2,35 +2,35 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>Q81 · Funktions‑Viewer</title>
+<title>Q81 · Identity‑Show</title>
 <style>
 body { background:#000; color:#eee; font-family:Consolas; padding:20px; }
-pre { background:#111; padding:15px; border:1px solid #333; padding:10px; }
+pre { background:#111; padding:15px; border:1px solid #333; }
+button { padding:10px; margin:5px; background:#222; color:#6cf; border:1px solid #444; }
 h1 { color:#6cf; }
 </style>
 </head>
 
 <body>
-<h1>Q81 · Funktions‑Viewer</h1>
+<h1>Q81 · Identity‑Show</h1>
+
+<button onclick="location.href='move.html'">Q‑Move</button>
+<button onclick="location.href='funktions.html'">Funktions‑Viewer</button>
+<button onclick="location.href='ID.html'">ID‑Viewer</button>
 
 <script type="module">
-import * as CORE from "./JS/core.js";
-import * as ORBIT from "./JS/orbit.js";
-import * as M81 from "./JS/m81.js";
-import * as TMP81 from "./JS/tmp81.js";
-import * as Z from "./JS/z.js";
-import * as X from "./JS/x.js";
+import { CORE } from "./JS/core.js";
+import { ORBIT } from "./JS/orbit.js";
+import { Z } from "./JS/z.js";
 
-function show(name, obj){
-    document.body.innerHTML += `<h2>${name}</h2><pre>${JSON.stringify(obj,null,2)}</pre>`;
-}
+document.body.innerHTML += "<h2>Identität</h2><pre>" +
+    JSON.stringify(CORE,null,2) + "</pre>";
 
-show("CORE", CORE);
-show("ORBIT", ORBIT);
-show("M81", M81);
-show("TMP81", TMP81);
-show("Z‑AXIS", Z);
-show("X81", X);
+document.body.innerHTML += "<h2>Orbit</h2><pre>" +
+    JSON.stringify(ORBIT,null,2) + "</pre>";
+
+document.body.innerHTML += "<h2>Z‑Achse</h2><pre>" +
+    JSON.stringify(Z,null,2) + "</pre>";
 </script>
 
 </body>
