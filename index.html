@@ -1,35 +1,697 @@
 <!DOCTYPE html>
-<html>
+<html lang="de">
 <head>
-<meta charset="UTF-8">
-<title>81.tmp · NC-System</title>
-<style>
-body{background:#000;color:#0f0;font-family:monospace;padding:40px;}
-pre{background:#111;border-left:3px solid #6cf;padding:12px;}
-button{background:#111;color:#0f0;border:1px solid #333;padding:8px 16px;margin-bottom:10px;}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🌀 ATALARDAN · GRAVITATION · NC · 81.tmp · A81‑FUSION</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background: #05070c;
+      color: #c0d0e0;
+      font-family: 'Consolas', monospace;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 12px;
+      overflow: hidden;
+      background-image: radial-gradient(ellipse at 30% 40%, #0a1628, #000000);
+    }
+    .container {
+      max-width: 1400px;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 280px;
+      gap: 16px;
+      height: 96vh;
+      max-height: 900px;
+      background: rgba(8, 12, 20, 0.4);
+      backdrop-filter: blur(6px);
+      border-radius: 40px;
+      padding: 16px;
+      border: 1px solid rgba(100, 180, 255, 0.04);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.9);
+    }
+    @media (max-width: 900px) {
+      .container { grid-template-columns: 1fr; height: auto; max-height: none; }
+      .panel { max-height: 300px; }
+    }
+
+    .canvas-wrap {
+      position: relative;
+      border-radius: 24px;
+      overflow: hidden;
+      background: #030508;
+      border: 1px solid rgba(100, 180, 255, 0.03);
+      box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.8);
+      aspect-ratio: 4 / 3;
+      width: 100%;
+      height: 100%;
+      min-height: 400px;
+    }
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .panel {
+      background: rgba(8, 12, 20, 0.6);
+      border-radius: 20px;
+      padding: 14px 16px;
+      border: 1px solid rgba(100, 180, 255, 0.04);
+      backdrop-filter: blur(4px);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      overflow-y: auto;
+      max-height: 100%;
+    }
+    .panel h3 {
+      font-size: 11px;
+      color: #5a7a8a;
+      letter-spacing: 2px;
+      border-bottom: 1px solid rgba(100, 180, 255, 0.02);
+      padding-bottom: 4px;
+    }
+    .metric-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+    }
+    .metric {
+      background: rgba(0,0,0,0.2);
+      border-radius: 6px;
+      padding: 4px 6px;
+      text-align: center;
+      border: 1px solid rgba(100, 180, 255, 0.02);
+    }
+    .metric .label { font-size: 6px; color: #5a6a7a; text-transform: uppercase; letter-spacing: 1px; }
+    .metric .value { font-size: 14px; font-weight: bold; color: #b0d0e8; }
+    .metric .value.nc { color: #4f4; }
+    .metric .value.loop { color: #ff6b6b; }
+    .metric .value.axis { color: #6b6bff; }
+    .metric .value.zone { color: #ffd93d; }
+    .metric .value.grav { color: #b388ff; }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin: 4px 0;
+    }
+    button {
+      background: rgba(20, 28, 36, 0.4);
+      border: 1px solid rgba(120, 160, 190, 0.06);
+      color: #9ab0c0;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 9px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s;
+      backdrop-filter: blur(2px);
+    }
+    button:hover {
+      background: rgba(40, 70, 90, 0.2);
+      border-color: rgba(160, 200, 240, 0.1);
+      color: #d0e8f8;
+    }
+    button.primary { border-color: rgba(255, 215, 0, 0.1); color: #f0d080; }
+    button.primary:hover { background: rgba(255, 215, 0, 0.04); }
+    button.nc { border-color: rgba(68, 255, 68, 0.1); color: #4f4; }
+    button.nc:hover { background: rgba(68, 255, 68, 0.04); }
+    button.loop { border-color: rgba(255, 107, 107, 0.1); color: #ff6b6b; }
+    button.loop:hover { background: rgba(255, 107, 107, 0.04); }
+    button.axis { border-color: rgba(107, 107, 255, 0.1); color: #6b6bff; }
+    button.axis:hover { background: rgba(107, 107, 255, 0.04); }
+    button.danger { border-color: rgba(255, 80, 80, 0.08); color: #d06060; }
+    button.danger:hover { background: rgba(255, 80, 80, 0.04); }
+
+    .log {
+      flex: 1;
+      background: rgba(0,0,0,0.2);
+      border-radius: 8px;
+      padding: 4px 8px;
+      font-size: 8px;
+      color: #4a5a6a;
+      max-height: 80px;
+      overflow-y: auto;
+      line-height: 1.4;
+      border: 1px solid rgba(100, 180, 255, 0.02);
+      margin-top: 4px;
+      font-family: 'Consolas', monospace;
+    }
+    .log .entry { border-bottom: 1px solid rgba(100,180,255,0.02); padding: 1px 0; }
+    .log .time { color: #2a3a4a; }
+    .log .msg { color: #8ab0c0; }
+    .log .msg.grav { color: #b388ff; }
+    .log .msg.nc { color: #4f4; }
+    .log .msg.loop { color: #ff6b6b; }
+    .log .msg.axis { color: #6b6bff; }
+
+    .footer {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      font-size: 8px;
+      color: #2a3a4a;
+      border-top: 1px solid rgba(100,180,255,0.02);
+      padding-top: 4px;
+      margin-top: 2px;
+    }
+    .footer .gold { color: #f0d080; }
+
+    ::-webkit-scrollbar { width: 3px; }
+    ::-webkit-scrollbar-track { background: #080c12; }
+    ::-webkit-scrollbar-thumb { background: #1a2a3a; border-radius: 4px; }
+  </style>
 </head>
 <body>
 
-<h1>81.tmp · NC-System</h1>
+<div class="container">
 
-<button onclick="runNC()">NC prüfen</button>
-<pre id="out">Bereit…</pre>
+  <div class="canvas-wrap" id="canvasWrap">
+    <canvas id="universeCanvas"></canvas>
+  </div>
+
+  <div class="panel">
+
+    <h3>🌀 ATALARDAN · GRAVITATION · NC</h3>
+
+    <div class="metric-grid">
+      <div class="metric"><div class="label">NC</div><div class="value nc" id="ncVal">●</div></div>
+      <div class="metric"><div class="label">LOOP</div><div class="value loop" id="loopVal">0</div></div>
+      <div class="metric"><div class="label">AXES</div><div class="value axis" id="axisVal">8</div></div>
+      <div class="metric"><div class="label">ZONE</div><div class="value zone" id="zoneVal">c</div></div>
+      <div class="metric"><div class="label">GRAVITATION</div><div class="value grav" id="gravVal">0.00</div></div>
+      <div class="metric"><div class="label">PARTIKEL</div><div class="value" id="particleVal">0</div></div>
+    </div>
+
+    <div class="btn-row">
+      <button class="primary" id="btnStart">▶ START</button>
+      <button class="nc" id="btnNC">◈ NC</button>
+      <button class="loop" id="btnLoop">🔄 LOOP</button>
+      <button class="axis" id="btnAxis">✧ AXES</button>
+      <button id="btnGrav">🌀 GRAV</button>
+      <button class="danger" id="btnReset">⟲ RESET</button>
+    </div>
+
+    <div class="log" id="log">
+      <div class="entry"><span class="time">[INIT]</span> <span class="msg grav">🌊 ATALARDAN · Gravitations‑Universum geladen</span></div>
+    </div>
+
+    <div class="footer">
+      <span class="gold">★</span> 81.tmp · A81‑FUSION · <span class="gold">⌨️ space=Start</span>
+    </div>
+  </div>
+
+</div>
 
 <script>
-function runNC(){
-    const nc = {
-        core: "NC",
-        state: "active",
-        loops: ["1.loop","2.loop","3.loop","4.loop","8.loop","9.loop"],
-        axes: ["tmp.a","tmp.d","tmp.e","tmp.i","tmp.o","tmp.r","tmp.s","tmp.w"],
-        modules: ["arg.tmp","in.tmp","fit.tmp","help.tmp","up.tmp"],
-        zone: "c.zone",
-        timestamp: Date.now()
-    };
-    out.textContent = JSON.stringify(nc, null, 2);
-}
-</script>
+// ================================================================
+//  ATALARDAN · GRAVITATION · NC · 81.tmp · A81‑FUSION
+//  Visuelle Simulation mit Teilchen, Gravitation, Loops, Achsen
+// ================================================================
 
+// ─── NC KERN ──────────────────────────────────────────────────────
+const NC = {
+  core: 'NC',
+  state: 'active',
+  level: 1,
+  role: 'Neutral-Core'
+};
+
+// ─── LOOPS ──────────────────────────────────────────────────────
+const LOOPS = [
+  { id: 1, role: 'init', state: 'start' },
+  { id: 2, role: 'flow', state: 'active' },
+  { id: 3, role: 'check', state: 'verify' },
+  { id: 4, role: 'delta', state: 'update' },
+  { id: 8, role: 'orbit', state: 'rotate' },
+  { id: 9, role: 'final', state: 'complete' }
+];
+
+// ─── AXES ──────────────────────────────────────────────────────
+const AXES = [
+  { id: 'a', role: 'base', value: 1 },
+  { id: 'd', role: 'dimension', value: 2 },
+  { id: 'e', role: 'energy', value: 3 },
+  { id: 'i', role: 'input', value: 4 },
+  { id: 'o', role: 'orbit', value: 5 },
+  { id: 'r', role: 'reach', value: 6 },
+  { id: 's', role: 'structure', value: 7 },
+  { id: 'w', role: 'wave', value: 8 }
+];
+
+// ─── ZONE ──────────────────────────────────────────────────────
+const ZONE = { id: 'c', role: 'core-zone', state: 'open' };
+
+// ─── A81‑FUSION (vereinfacht) ──────────────────────────────────
+const A81FUSION = {
+  cache: [],
+  respo100: Array.from({length:100}, (_,i) => `R${i}`),
+  respo360: Array.from({length:360}, (_,i) => `D${i}`),
+  matrix9: Array.from({length:9}, () => Array(9).fill(0)),
+  geo: { axes: '3-6-9', lage: 'ORBIT' },
+  pq243: 0,
+  c81: { room: '81' },
+  nc: null,
+  init() {
+    this.pq243 = Date.now() % 243;
+    this.nc = {
+      c81: this.c81,
+      r360: this.respo360,
+      pq243: this.pq243,
+      cache: this.cache,
+      matrix9: this.matrix9,
+      geo: this.geo,
+      status: 'active'
+    };
+  }
+};
+A81FUSION.init();
+
+// ─── CANVAS ──────────────────────────────────────────────────────
+const canvas = document.getElementById('universeCanvas');
+const ctx = canvas.getContext('2d');
+let W, H;
+
+function resize() {
+  const rect = canvas.parentElement.getBoundingClientRect();
+  canvas.width = rect.width;
+  canvas.height = rect.height;
+  W = canvas.width;
+  H = canvas.height;
+}
+resize();
+window.addEventListener('resize', resize);
+
+// ─── STATE ──────────────────────────────────────────────────────
+const state = {
+  running: false,
+  t: 0,
+  cycle: 0,
+  loopIndex: 0,
+  gravStrength: 0.5,
+  particles: [],
+  stars: [],
+  axisValues: AXES.map(a => a.value)
+};
+
+// ─── PARTIKEL ──────────────────────────────────────────────────
+function initParticles(n = 180) {
+  state.particles = [];
+  for (let i = 0; i < n; i++) {
+    const angle = Math.random() * 2 * Math.PI;
+    const dist = 30 + Math.random() * Math.min(W, H) * 0.4;
+    const size = 1.5 + Math.random() * 3;
+    state.particles.push({
+      x: W/2 + Math.cos(angle) * dist,
+      y: H/2 + Math.sin(angle) * dist,
+      vx: (Math.random() - 0.5) * 0.3,
+      vy: (Math.random() - 0.5) * 0.3,
+      size: size,
+      orbitAngle: angle,
+      orbitSpeed: 0.002 + Math.random() * 0.008,
+      orbitRadius: dist,
+      hue: 200 + Math.random() * 60
+    });
+  }
+}
+
+function initStars(n = 400) {
+  state.stars = [];
+  for (let i = 0; i < n; i++) {
+    state.stars.push({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      size: 0.5 + Math.random() * 1.5,
+      brightness: 0.3 + Math.random() * 0.7
+    });
+  }
+}
+
+initParticles(200);
+initStars(500);
+
+// ─── GRAVITATIONSEFFEKT ──────────────────────────────────────
+function applyGravity() {
+  const cx = W/2, cy = H/2;
+  const strength = state.gravStrength * 0.02;
+
+  for (const p of state.particles) {
+    const dx = cx - p.x;
+    const dy = cy - p.y;
+    const dist = Math.hypot(dx, dy) || 1;
+    const force = strength / (dist * 0.1 + 1);
+    p.vx += (dx / dist) * force;
+    p.vy += (dy / dist) * force;
+    p.vx *= 0.998;
+    p.vy *= 0.998;
+    p.x += p.vx;
+    p.y += p.vy;
+
+    // Kollision mit Rand
+    const margin = p.size;
+    if (p.x < margin) { p.x = margin; p.vx *= -0.5; }
+    if (p.x > W - margin) { p.x = W - margin; p.vx *= -0.5; }
+    if (p.y < margin) { p.y = margin; p.vy *= -0.5; }
+    if (p.y > H - margin) { p.y = H - margin; p.vy *= -0.5; }
+  }
+}
+
+// ─── RENDER ──────────────────────────────────────────────────────
+function render() {
+  ctx.clearRect(0, 0, W, H);
+
+  // ─── Hintergrund (Nebel) ───
+  const grad = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, Math.max(W,H)*0.6);
+  grad.addColorStop(0, 'rgba(10, 20, 40, 0.2)');
+  grad.addColorStop(0.5, 'rgba(5, 10, 20, 0.5)');
+  grad.addColorStop(1, 'rgba(0, 0, 0, 0.9)');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
+
+  // ─── Sterne ───
+  for (const s of state.stars) {
+    const alpha = s.brightness * (0.6 + 0.4 * Math.sin(state.t * 0.02 + s.x));
+    ctx.fillStyle = `rgba(255, 255, 255, ${alpha * 0.3})`;
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // ─── Gravitations‑Wellen (visueller Hintergrund) ───
+  for (let i = 0; i < 3; i++) {
+    const r = 40 + i * 70 + Math.sin(state.t * 0.1 + i) * 10;
+    ctx.strokeStyle = `rgba(180, 130, 255, ${0.02 + i * 0.01})`;
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3, 8]);
+    ctx.beginPath();
+    ctx.arc(W/2, H/2, r + Math.sin(state.t * 0.05 + i) * 8, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // ─── Achsen (9 Punkte) ───
+  const nAxes = AXES.length;
+  const rAxes = Math.min(W, H) * 0.32;
+  const colors = ['#ff6b6b', '#6bff6b', '#6b6bff', '#ffd93d', '#ff44ff', '#6cf', '#ff8c00', '#4f4'];
+
+  for (let i = 0; i < nAxes; i++) {
+    const angle = (i / nAxes) * 2 * Math.PI - Math.PI/2 + state.t * 0.015;
+    const dist = rAxes * (0.6 + (state.axisValues[i] / 12) * 0.4);
+    const x = W/2 + Math.cos(angle) * dist;
+    const y = H/2 + Math.sin(angle) * dist;
+    const col = colors[i % colors.length];
+
+    // Linie zum Zentrum
+    ctx.strokeStyle = col + '33';
+    ctx.lineWidth = 0.8;
+    ctx.beginPath();
+    ctx.moveTo(W/2, H/2);
+    ctx.lineTo(x, y);
+    ctx.stroke();
+
+    // Punkt
+    ctx.shadowColor = col;
+    ctx.shadowBlur = 15;
+    ctx.fillStyle = col;
+    ctx.beginPath();
+    ctx.arc(x, y, 5 + 2 * Math.sin(state.t * 0.02 + i), 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    // Label
+    ctx.fillStyle = '#b0c8d8';
+    ctx.font = '8px Consolas';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'bottom';
+    ctx.fillText(AXES[i].id, x, y - 8);
+    ctx.fillStyle = '#4a5a6a';
+    ctx.font = '5px Consolas';
+    ctx.textBaseline = 'top';
+    ctx.fillText(state.axisValues[i].toFixed(1), x, y + 8);
+  }
+
+  // ─── LOOP‑RING ───
+  const loopR = Math.min(W, H) * 0.16;
+  const loopIdx = state.loopIndex % LOOPS.length;
+  const loop = LOOPS[loopIdx];
+
+  ctx.strokeStyle = 'rgba(255, 107, 107, 0.08)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([2, 6]);
+  ctx.beginPath();
+  ctx.arc(W/2, H/2, loopR, 0, 2 * Math.PI);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Loop‑Marker
+  const angleLoop = (loopIdx / LOOPS.length) * 2 * Math.PI + state.t * 0.02;
+  const lx = W/2 + Math.cos(angleLoop) * loopR;
+  const ly = H/2 + Math.sin(angleLoop) * loopR;
+  ctx.shadowColor = '#ff6b6b';
+  ctx.shadowBlur = 20;
+  ctx.fillStyle = '#ff6b6b';
+  ctx.beginPath();
+  ctx.arc(lx, ly, 6, 0, 2 * Math.PI);
+  ctx.fill();
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = '#ff6b6b';
+  ctx.font = '7px Consolas';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'bottom';
+  ctx.fillText(`LOOP ${loop.id}`, lx, ly - 10);
+  ctx.fillStyle = '#4a5a6a';
+  ctx.font = '4px Consolas';
+  ctx.textBaseline = 'top';
+  ctx.fillText(loop.role, lx, ly + 8);
+
+  // Loop‑Zahlen am Ring
+  for (let i = 0; i < LOOPS.length; i++) {
+    const a = (i / LOOPS.length) * 2 * Math.PI + state.t * 0.008;
+    const d = loopR * 0.85;
+    const px = W/2 + Math.cos(a) * d;
+    const py = H/2 + Math.sin(a) * d;
+    const active = i === loopIdx;
+    ctx.fillStyle = active ? '#ff6b6b' : '#2a3a4a';
+    ctx.font = active ? '6px Consolas' : '4px Consolas';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(LOOPS[i].id, px, py);
+  }
+
+  // ─── ZENTRALER KERN (NC) ───
+  const coreR = Math.min(W, H) * 0.06;
+  const glow = ctx.createRadialGradient(W/2-4, H/2-4, 0, W/2, H/2, coreR * 2.5);
+  glow.addColorStop(0, '#8f8');
+  glow.addColorStop(0.3, '#4f4');
+  glow.addColorStop(1, 'rgba(68, 255, 68, 0)');
+  ctx.shadowColor = '#4f4';
+  ctx.shadowBlur = 40;
+  ctx.fillStyle = glow;
+  ctx.beginPath();
+  ctx.arc(W/2, H/2, coreR * 2.5, 0, 2 * Math.PI);
+  ctx.fill();
+  ctx.shadowBlur = 20;
+  ctx.fillStyle = '#4f4';
+  ctx.beginPath();
+  ctx.arc(W/2, H/2, coreR, 0, 2 * Math.PI);
+  ctx.fill();
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = '#000';
+  ctx.font = 'bold 14px Consolas';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('NC', W/2, H/2 - 1);
+  ctx.fillStyle = 'rgba(255,255,255,0.3)';
+  ctx.font = '6px Consolas';
+  ctx.textBaseline = 'top';
+  ctx.fillText('81.tmp', W/2, H/2 + coreR + 8);
+
+  // ─── PARTIKEL ──────────────────────────────────────────────────
+  for (const p of state.particles) {
+    const alpha = 0.4 + 0.6 * (p.size / 4);
+    ctx.shadowColor = `hsl(${p.hue}, 80%, 70%)`;
+    ctx.shadowBlur = 8;
+    ctx.fillStyle = `hsla(${p.hue}, 80%, 70%, ${alpha * 0.6})`;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, 2 * Math.PI);
+    ctx.fill();
+    // kleiner Kern
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = `hsla(${p.hue}, 90%, 85%, ${alpha * 0.3})`;
+    ctx.beginPath();
+    ctx.arc(p.x - p.size*0.2, p.y - p.size*0.2, p.size*0.3, 0, 2 * Math.PI);
+    ctx.fill();
+  }
+  ctx.shadowBlur = 0;
+
+  // ─── INFO ──────────────────────────────────────────────────────
+  ctx.fillStyle = 'rgba(200,220,240,0.15)';
+  ctx.font = '8px Consolas';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'bottom';
+  ctx.fillText(`Gravitation ${state.gravStrength.toFixed(2)} · Partikel ${state.particles.length} · Zyklus ${state.cycle}`, 12, H - 8);
+  ctx.textAlign = 'right';
+  ctx.fillText(`ATALARDAN · A81‑FUSION`, W - 12, H - 8);
+
+  // ─── ZONE‑Anzeige ──────────────────────────────────────────────
+  ctx.fillStyle = 'rgba(255, 215, 0, 0.15)';
+  ctx.font = '7px Consolas';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+  ctx.fillText(`ZONE ${ZONE.id}.${ZONE.role}`, W/2, 10);
+}
+
+// ─── UPDATE ──────────────────────────────────────────────────────
+function update() {
+  if (!state.running) return;
+
+  state.t += 0.008;
+  state.cycle++;
+
+  // Gravitation anwenden
+  applyGravity();
+
+  // Achsen langsam variieren
+  for (let i = 0; i < AXES.length; i++) {
+    state.axisValues[i] = AXES[i].value + Math.sin(state.t * 0.02 + i * 0.5) * 0.3;
+    state.axisValues[i] = Math.max(0.5, Math.min(10, state.axisValues[i]));
+  }
+
+  // Loop‑Index vorantreiben
+  if (state.cycle % 25 === 0) {
+    state.loopIndex = (state.loopIndex + 1) % LOOPS.length;
+  }
+
+  // Gelegentlich neue Partikel erzeugen (wenn zu wenig)
+  if (state.particles.length < 150 && state.cycle % 5 === 0) {
+    const angle = Math.random() * 2 * Math.PI;
+    const dist = 20 + Math.random() * 40;
+    state.particles.push({
+      x: W/2 + Math.cos(angle) * dist,
+      y: H/2 + Math.sin(angle) * dist,
+      vx: (Math.random() - 0.5) * 0.2,
+      vy: (Math.random() - 0.5) * 0.2,
+      size: 1.5 + Math.random() * 2.5,
+      orbitAngle: angle,
+      orbitSpeed: 0.002 + Math.random() * 0.006,
+      orbitRadius: dist,
+      hue: 180 + Math.random() * 80
+    });
+  }
+
+  // Partikelzahl begrenzen
+  if (state.particles.length > 300) {
+    state.particles.splice(0, state.particles.length - 300);
+  }
+
+  // UI aktualisieren
+  document.getElementById('loopVal').textContent = LOOPS[state.loopIndex % LOOPS.length].id;
+  document.getElementById('axisVal').textContent = AXES.length;
+  document.getElementById('gravVal').textContent = state.gravStrength.toFixed(2);
+  document.getElementById('particleVal').textContent = state.particles.length;
+  document.getElementById('ncVal').textContent = NC.state === 'active' ? '●' : '○';
+  document.getElementById('zoneVal').textContent = ZONE.id;
+}
+
+// ─── ANIMATIONSLOOP ──────────────────────────────────────────────
+function loop() {
+  update();
+  render();
+  requestAnimationFrame(loop);
+}
+
+// ─── LOG ──────────────────────────────────────────────────────────
+function log(msg, type = 'grav') {
+  const el = document.getElementById('log');
+  const time = new Date().toLocaleTimeString();
+  const cls = ['grav','nc','loop','axis'].includes(type) ? type : 'grav';
+  el.innerHTML += `<div class="entry"><span class="time">[${time}]</span> <span class="msg ${cls}">${msg}</span></div>`;
+  el.scrollTop = el.scrollHeight;
+  while (el.children.length > 30) el.removeChild(el.firstChild);
+}
+
+// ─── STEUERUNG ──────────────────────────────────────────────────
+function toggleStart() {
+  state.running = !state.running;
+  document.getElementById('btnStart').textContent = state.running ? '⏸ STOP' : '▶ START';
+  log(state.running ? '▶ Simulation gestartet' : '⏸ Simulation pausiert', 'grav');
+}
+
+function triggerNC() {
+  NC.state = NC.state === 'active' ? 'idle' : 'active';
+  log(`◈ NC · ${NC.state}`, 'nc');
+}
+
+function triggerLoop() {
+  state.loopIndex = (state.loopIndex + 1) % LOOPS.length;
+  const loop = LOOPS[state.loopIndex];
+  log(`🔄 LOOP ${loop.id} · ${loop.role}`, 'loop');
+}
+
+function triggerAxis() {
+  const idx = Math.floor(Math.random() * AXES.length);
+  const ax = AXES[idx];
+  ax.value = Math.min(10, ax.value + 0.5 + Math.random());
+  log(`✧ AXIS ${ax.id} · ${ax.role} = ${ax.value.toFixed(1)}`, 'axis');
+}
+
+function toggleGrav() {
+  state.gravStrength = state.gravStrength < 0.9 ? state.gravStrength + 0.1 : 0.1;
+  log(`🌀 Gravitation auf ${state.gravStrength.toFixed(2)}`, 'grav');
+}
+
+function resetAll() {
+  state.running = false;
+  state.t = 0;
+  state.cycle = 0;
+  state.loopIndex = 0;
+  state.gravStrength = 0.5;
+  document.getElementById('btnStart').textContent = '▶ START';
+  initParticles(200);
+  initStars(500);
+  AXES.forEach((a, i) => a.value = i + 1);
+  state.axisValues = AXES.map(a => a.value);
+  NC.state = 'active';
+  log('⟲ RESET · Universum neu formatiert', 'grav');
+}
+
+// ─── BUTTONS ────────────────────────────────────────────────────
+document.getElementById('btnStart').addEventListener('click', toggleStart);
+document.getElementById('btnNC').addEventListener('click', triggerNC);
+document.getElementById('btnLoop').addEventListener('click', triggerLoop);
+document.getElementById('btnAxis').addEventListener('click', triggerAxis);
+document.getElementById('btnGrav').addEventListener('click', toggleGrav);
+document.getElementById('btnReset').addEventListener('click', resetAll);
+
+// ─── TASTATUR ──────────────────────────────────────────────────
+document.addEventListener('keydown', (e) => {
+  if (e.key === ' ' || e.key === 'Space') { e.preventDefault(); toggleStart(); }
+  if (e.key === '1') triggerNC();
+  if (e.key === '2') triggerLoop();
+  if (e.key === '3') triggerAxis();
+  if (e.key === '4') toggleGrav();
+  if (e.key === 'x' || e.key === 'X') resetAll();
+});
+
+// ─── INIT ──────────────────────────────────────────────────────
+log('🌊 ATALARDAN · Gravitations‑Universum geladen', 'grav');
+log('⌨️  space=Start  1=NC  2=LOOP  3=AXIS  4=Grav  x=Reset', 'grav');
+
+// Automatisch starten
+setTimeout(() => {
+  state.running = true;
+  document.getElementById('btnStart').textContent = '⏸ STOP';
+  log('▶ Auto‑Start · Universum erwacht', 'grav');
+}, 500);
+
+// ─── LOOP STARTEN ──────────────────────────────────────────────
+loop();
+</script>
 </body>
 </html>
